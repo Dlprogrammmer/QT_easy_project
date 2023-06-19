@@ -17,6 +17,7 @@ public:
 
 private:
     Ui::DialogList *ui;
+    QVector<bool> IsShow;
 };
 
 #endif // DIALOGLIST_H
