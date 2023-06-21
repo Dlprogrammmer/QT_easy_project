@@ -1,7 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include"QMessageBox"
-#include"QDateTime""
+#include"QDateTime"
 Widget::Widget(QWidget *parent,QString name)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -56,6 +56,34 @@ QString Widget::getMsg()
     return msg;
 }
 
+void Widget::userEnter(QString username)
+{
+    bool isEmpty=ui->usrTblWidget->findItems(username,Qt::MatchExactly).isEmpty();
+    if(isEmpty)
+    {
+        QTableWidgetItem *user=new QTableWidgetItem(username);
+        ui->usrTblWidget->insertRow(0);
+        ui->usrTblWidget->setItem(0,0,user);
+        ui->msgBrowser->append(username+"用户已上线");
+        ui->msgBrowser->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
+        sendMsg(UserEnter);
+    }
+}
+
+void Widget::userLeft(QString username)
+{
+    bool isEmpty=ui->usrTblWidget->findItems(username,Qt::MatchExactly).isEmpty();
+    if(isEmpty)
+    {
+        int row=ui->usrTblWidget->findItems(username,Qt::MatchExactly).first()->row();
+        ui->usrTblWidget->removeRow(row);
+        ui->msgBrowser->setTextColor(Qt::gray);
+        ui->msgBrowser->append(username+"用户已上线");
+        ui->msgBrowser->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
+
+    }
+}
+
 void Widget::ReceiveMessage()
 {
     qint64 size=udpSocket->pendingDatagramSize();
@@ -82,7 +110,7 @@ void Widget::ReceiveMessage()
         break;
     case UserLeft:
         stream>>name;
-        userLeft(name,time);
+        userLeft(name);
         break;
     }
 }
