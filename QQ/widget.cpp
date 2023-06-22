@@ -2,6 +2,9 @@
 #include "ui_widget.h"
 #include"QMessageBox"
 #include"QDateTime"
+#include<iostream>
+#include<QFontComboBox>
+#include<qfont.h>>
 Widget::Widget(QWidget *parent,QString name)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -17,6 +20,21 @@ Widget::Widget(QWidget *parent,QString name)
     connect(udpSocket,&QUdpSocket::readyRead,this,&Widget::ReceiveMessage);
     connect(ui->sendBtn,&QPushButton::clicked,[=](){
         sendMsg(Msg);
+    });
+    sendMsg(UserEnter);
+
+    connect(ui->exitBtn,&QPushButton::clicked,[=](){
+        this->close();
+    });
+
+    void (QComboBox:: * sizebtn)(const QString &text)=&QComboBox::currentTextChanged;
+    connect(ui->sizeCbx,sizebtn,[=](const QString &text){
+        ui->msgtextEdit->setFontPointSize(text.toDouble());
+        ui->msgtextEdit->setFocus();
+    });
+    connect(ui->fontCBx,&QFontComboBox::currentFontChanged,[=](const QFont &font){
+        ui->msgtextEdit->setCurrentFont(font);
+        ui->msgtextEdit->setFocus();
     });
 }
 
@@ -65,21 +83,22 @@ void Widget::userEnter(QString username)
         ui->usrTblWidget->insertRow(0);
         ui->usrTblWidget->setItem(0,0,user);
         ui->msgBrowser->append(username+"用户已上线");
-        ui->msgBrowser->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
+        ui->userNumLbl->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
         sendMsg(UserEnter);
     }
 }
 
-void Widget::userLeft(QString username)
+void Widget::userLeft(QString username,QString time)
 {
     bool isEmpty=ui->usrTblWidget->findItems(username,Qt::MatchExactly).isEmpty();
-    if(isEmpty)
+    if(!isEmpty)
     {
+
         int row=ui->usrTblWidget->findItems(username,Qt::MatchExactly).first()->row();
         ui->usrTblWidget->removeRow(row);
         ui->msgBrowser->setTextColor(Qt::gray);
-        ui->msgBrowser->append(username+"用户已上线");
-        ui->msgBrowser->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
+        ui->msgBrowser->append(username+"用户于"+time+"下线");
+        ui->userNumLbl->setText(QString("在线人数:%1人").arg(ui->usrTblWidget->rowCount()));
 
     }
 }
@@ -95,6 +114,7 @@ void Widget::ReceiveMessage()
     stream>>msgtype;
     QString name,msg;
     QString time=QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+
     switch(msgtype)
     {
     case Msg:
@@ -110,7 +130,7 @@ void Widget::ReceiveMessage()
         break;
     case UserLeft:
         stream>>name;
-        userLeft(name);
+        userLeft(name,time);
         break;
     }
 }
@@ -123,5 +143,8 @@ Widget::~Widget()
 void Widget::closeEvent(QCloseEvent *)
 {
     emit this->closeWidget();
+    sendMsg(UserLeft);
+    udpSocket->close();
+    udpSocket->destroyed();
 }
 

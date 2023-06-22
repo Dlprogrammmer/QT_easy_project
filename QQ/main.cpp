@@ -1,5 +1,5 @@
 #include "widget.h"
-#include"dialoglist.h""
+#include"dialoglist.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

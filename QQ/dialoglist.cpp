@@ -3,7 +3,7 @@
 #include"QToolButton"
 #include"qpixmap.h"
 #include"widget.h"
-#include"QMessageBox""
+#include"QMessageBox"
 DialogList::DialogList(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DialogList)

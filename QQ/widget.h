@@ -2,7 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include<QUdpSocket>>
+#include<QUdpSocket>
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -18,7 +18,7 @@ public:
     QString getName();//获取名字
     QString getMsg();//获取聊天信息
     void userEnter(QString username);//用户进入
-    void userLeft(QString username);//用户离开
+    void userLeft(QString username,QString time);//用户离开
     void ReceiveMessage();//接受UDP信息
     ~Widget();
     void  closeEvent(QCloseEvent*);
